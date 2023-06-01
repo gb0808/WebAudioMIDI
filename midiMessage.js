@@ -1,6 +1,3 @@
-// Set up the audio context
-const audioContext = new AudioContext();
-
 /**
  * The ctor for an object holding data taken from a MIDI signal.
  * 
@@ -30,32 +27,9 @@ const noteFrequency = [
     6644.88, 7040.00, 7458.62, 7902.13, 8372.02, 8869.84, 9397.27, 9956.06, 10548.08, 11175.30,11839.82, 12543.85, 13289.75
 ];
 
-// A queue of OscillatorNodes stating if a note is playing
-var notePlaying = [];
-
 /**
  * @returns true if a note is sounding and false if otherwise.
  */
 MIDIMessage.prototype.checkNoteStatus = function() {
     return this.command == 144 && this.velocity > 0;
-}
-
-/**
- * Sounds the note being played by the MIDI controller.
- */
-MIDIMessage.prototype.playNote = function () {
-    if (this.checkNoteStatus()) {
-        const osc = new OscillatorNode(audioContext, {
-            type: "sine",
-            frequency: noteFrequency[this.note],
-        });
-        osc.connect(audioContext.destination);
-        osc.start();
-        notePlaying.push(osc);
-    }
-    else {
-        notePlaying[0].stop();
-        notePlaying[0].disconnect();
-        notePlaying.pop(); 
-    }
 }

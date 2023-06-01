@@ -23,9 +23,33 @@ function failure() {
     console.log("ERROR: could not access MIDI device");
 }
 
+let oscMap = new Map();
+
 // Handles the input reveived
 function parseInput(input) {
+    // Set up the audio context
+    const audioContext = new AudioContext();
 
+    // Get the MIDI messagge from the keyboard
     const message = new MIDIMessage(input.data[0], input.data[1], input.data[2]);
-    message.playNote();
+    console.log(message);
+
+    // Play or stop the note
+    if (message.checkNoteStatus()) {
+        oscMap.set(message.note, new OscillatorNode(audioContext, {
+            type: "sine",
+            frequency: noteFrequency[message.note],
+        }));
+        oscMap.get(message.note).connect(audioContext.destination);
+        oscMap.get(message.note).start();
+    } else {
+        if (oscMap.has(message.note)) {
+            const tempOsc = oscMap.get(message.note);
+            oscMap.delete(message.note);
+            tempOsc.stop();
+            
+        }
+    }
+
+    console.log(oscMap);
 }
