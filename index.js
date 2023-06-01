@@ -1,3 +1,5 @@
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
 // Checks if the browser supports WebMIDI
 if (navigator.requestMIDIAccess) {
     console.log("MIDI supported");
@@ -77,7 +79,13 @@ function parseInput(input) {
             type: "sine",
             frequency: noteFrequency[message.note],
         }));
-        oscMap.get(message.note).connect(audioContext.destination);
+
+        
+        const volume = audioContext.createGain();
+        volume.gain.value = message.velocity * 0.01;
+
+
+        oscMap.get(message.note).connect(volume).connect(audioContext.destination);
         oscMap.get(message.note).start();
     } else {
         if (oscMap.has(message.note)) {
